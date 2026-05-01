@@ -3,6 +3,7 @@ const translations = {
   en: {
     nav_home: "Home",
     nav_about: "About",
+    nav_blog: "Blog",
     nav_skills: "Skills",
     nav_profiles: "Profiles",
     nav_contact: "Contact",
@@ -21,6 +22,14 @@ const translations = {
     about_degree_label: "Degree:",
     about_interests_label: "Interests:",
     about_leetcode_val: "150+ Problems Solved",
+    video_title: "Featured Video",
+    video_subtitle: "A quick look at my channel and learning journey.",
+    video_desc_title: "How to update this video",
+    video_desc_p1: "Open the file <strong>video-config.json</strong>, paste your YouTube link in the <strong>youtubeUrl</strong> field, and save.",
+    video_desc_p2: "Supported links include watch URLs, short URLs, shorts URLs, and embed URLs.",
+    blog_title: "Blog Wall",
+    blog_subtitle: "Drop any number of photos in the <strong>blog-media</strong> folder and they appear here automatically.",
+    blog_empty: "No blog photos found yet. Add images inside the blog-media folder.",
     skills_title: "Skills",
     skill_dsa: "Data Structures & Algorithms",
     skill_webdev: "Web Development",
@@ -56,6 +65,7 @@ const translations = {
   ge: {
     nav_home: "Startseite",
     nav_about: "\u00DCber mich",
+    nav_blog: "Blog",
     nav_skills: "F\u00E4higkeiten",
     nav_profiles: "Profile",
     nav_contact: "Kontakt",
@@ -74,6 +84,14 @@ const translations = {
     about_degree_label: "Abschluss:",
     about_interests_label: "Interessen:",
     about_leetcode_val: "\u00DCber 150 Aufgaben gel\u00F6st",
+    video_title: "Vorgestelltes Video",
+    video_subtitle: "Ein kurzer Einblick in meinen Kanal und meinen Lernweg.",
+    video_desc_title: "So aktualisieren Sie dieses Video",
+    video_desc_p1: "\u00D6ffnen Sie die Datei <strong>video-config.json</strong>, f\u00FCgen Sie Ihren YouTube-Link in das Feld <strong>youtubeUrl</strong> ein und speichern Sie.",
+    video_desc_p2: "Unterst\u00FCtzt werden Watch-URLs, Kurzlinks, Shorts-URLs und Embed-URLs.",
+    blog_title: "Blog-Wand",
+    blog_subtitle: "F\u00FCgen Sie beliebig viele Fotos in den Ordner <strong>blog-media</strong> ein und sie erscheinen hier automatisch.",
+    blog_empty: "Noch keine Blog-Fotos gefunden. F\u00FCgen Sie Bilder im Ordner blog-media hinzu.",
     skills_title: "F\u00E4higkeiten",
     skill_dsa: "Datenstrukturen & Algorithmen",
     skill_webdev: "Webentwicklung",
@@ -134,8 +152,13 @@ function setLanguage(lang) {
   document.getElementById("langGE").setAttribute("aria-pressed", lang === "ge");
 }
 
-document.getElementById("langEN").addEventListener("click", function() { setLanguage("en"); });
-document.getElementById("langGE").addEventListener("click", function() { setLanguage("ge"); });
+var langEN = document.getElementById("langEN");
+var langGE = document.getElementById("langGE");
+
+if (langEN && langGE) {
+  langEN.addEventListener("click", function() { setLanguage("en"); });
+  langGE.addEventListener("click", function() { setLanguage("ge"); });
+}
 
 // ========== DARK / LIGHT MODE ==========
 function setTheme(theme) {
@@ -151,28 +174,52 @@ function setTheme(theme) {
   }
 })();
 
-document.getElementById("themeToggle").addEventListener("click", function() {
-  var current = document.documentElement.getAttribute("data-theme");
-  setTheme(current === "dark" ? "light" : "dark");
-});
+var themeToggle = document.getElementById("themeToggle");
+if (themeToggle) {
+  themeToggle.addEventListener("click", function() {
+    var current = document.documentElement.getAttribute("data-theme");
+    setTheme(current === "dark" ? "light" : "dark");
+  });
+}
 
 // ========== Mobile Navigation Toggle ==========
 var navToggle = document.getElementById("navToggle");
 var navLinks = document.getElementById("navLinks");
 
-navToggle.addEventListener("click", function() {
-  navLinks.classList.toggle("open");
-});
+if (navToggle && navLinks) {
+  navToggle.setAttribute("aria-expanded", "false");
 
-navLinks.querySelectorAll(".nav-link").forEach(function(link) {
-  link.addEventListener("click", function() {
-    navLinks.classList.remove("open");
+  navToggle.addEventListener("click", function() {
+    var isOpen = navLinks.classList.toggle("open");
+    navToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
   });
-});
+
+  navLinks.querySelectorAll(".nav-link").forEach(function(link) {
+    link.addEventListener("click", function() {
+      navLinks.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+      navLinks.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  document.addEventListener("click", function(e) {
+    if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+      navLinks.classList.remove("open");
+      navToggle.setAttribute("aria-expanded", "false");
+    }
+  });
+}
 
 // ========== Active Nav Link on Scroll ==========
 var sections = document.querySelectorAll("section[id]");
 var navItems = document.querySelectorAll(".nav-link");
+var navbar = document.getElementById("navbar");
 
 function setActiveLink() {
   var scrollY = window.scrollY + 100;
@@ -193,36 +240,272 @@ function setActiveLink() {
   });
 }
 
-window.addEventListener("scroll", setActiveLink);
+function setNavbarState() {
+  if (!navbar) {
+    return;
+  }
+  navbar.classList.toggle("scrolled", window.scrollY > 8);
+}
+
+window.addEventListener("scroll", function() {
+  setActiveLink();
+  setNavbarState();
+  setScrollProgress();
+  toggleBackToTop();
+});
+
 setActiveLink();
+setNavbarState();
+
+// ========== Reveal Animations ==========
+var revealItems = document.querySelectorAll(".reveal");
+
+if ("IntersectionObserver" in window) {
+  var revealObserver = new IntersectionObserver(function(entries, observer) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  revealItems.forEach(function(item) {
+    revealObserver.observe(item);
+  });
+} else {
+  revealItems.forEach(function(item) {
+    item.classList.add("is-visible");
+  });
+}
+
+// ========== Scroll Progress ==========
+var scrollProgress = document.getElementById("scrollProgress");
+
+function setScrollProgress() {
+  if (!scrollProgress) {
+    return;
+  }
+
+  var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  var progress = maxScroll > 0 ? (window.scrollY / maxScroll) * 100 : 0;
+  scrollProgress.style.width = progress + "%";
+}
+
+setScrollProgress();
+
+// ========== Back To Top ==========
+var backToTop = document.getElementById("backToTop");
+
+function toggleBackToTop() {
+  if (!backToTop) {
+    return;
+  }
+  backToTop.classList.toggle("visible", window.scrollY > 500);
+}
+
+if (backToTop) {
+  backToTop.addEventListener("click", function() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
+
+toggleBackToTop();
+
+// ========== Featured Video From Config ==========
+var featuredVideo = document.getElementById("featuredVideo");
+
+function extractYoutubeId(url) {
+  if (!url) {
+    return null;
+  }
+
+  var clean = String(url).trim();
+  if (!clean) {
+    return null;
+  }
+
+  var match = clean.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  if (match && match[1]) {
+    return match[1];
+  }
+
+  return /^[a-zA-Z0-9_-]{11}$/.test(clean) ? clean : null;
+}
+
+function setFeaturedVideo(urlOrId) {
+  if (!featuredVideo) {
+    return;
+  }
+
+  var youtubeId = extractYoutubeId(urlOrId);
+  if (!youtubeId) {
+    return;
+  }
+
+  featuredVideo.src = "https://www.youtube.com/embed/" + youtubeId;
+}
+
+function loadFeaturedVideo() {
+  fetch("video-config.json", { cache: "no-cache" })
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error("Unable to load video config");
+      }
+      return response.json();
+    })
+    .then(function(config) {
+      if (config && config.youtubeUrl) {
+        setFeaturedVideo(config.youtubeUrl);
+      }
+    })
+    .catch(function() {
+      /* Keep default iframe URL */
+    });
+}
+
+loadFeaturedVideo();
+
+// ========== Blog Gallery From Folder ==========
+var blogGallery = document.getElementById("blogGallery");
+var blogEmptyMessage = document.getElementById("blogEmptyMessage");
+
+function toggleBlogEmptyState(show) {
+  if (!blogEmptyMessage) {
+    return;
+  }
+  blogEmptyMessage.classList.toggle("hidden", !show);
+}
+
+function renderBlogImages(imagePaths) {
+  if (!blogGallery) {
+    return;
+  }
+
+  blogGallery.innerHTML = "";
+
+  imagePaths.forEach(function(path) {
+    var card = document.createElement("figure");
+    card.className = "blog-photo-card";
+
+    var image = document.createElement("img");
+    image.className = "blog-photo";
+    image.loading = "lazy";
+    image.decoding = "async";
+    image.src = path;
+    image.alt = "Blog photo";
+
+    card.appendChild(image);
+    blogGallery.appendChild(card);
+  });
+
+  toggleBlogEmptyState(imagePaths.length === 0);
+}
+
+function uniqueImageList(items) {
+  return Array.from(new Set(items));
+}
+
+function parseImagesFromDirectoryHtml(html) {
+  var imagePattern = /href=\"([^\"]+\.(?:png|jpe?g|webp|gif|avif|bmp|svg))\"/gi;
+  var images = [];
+  var match;
+
+  while ((match = imagePattern.exec(html)) !== null) {
+    var relativePath = match[1];
+    if (!relativePath.startsWith("http")) {
+      relativePath = "blog-media/" + relativePath.replace(/^\.?\//, "");
+    }
+    images.push(relativePath);
+  }
+
+  return uniqueImageList(images);
+}
+
+function loadBlogFromManifest() {
+  return fetch("blog-media/index.json", { cache: "no-cache" })
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error("No manifest");
+      }
+      return response.json();
+    })
+    .then(function(payload) {
+      var files = (payload && Array.isArray(payload.images)) ? payload.images : [];
+      return files
+        .filter(function(fileName) {
+          return /\.(png|jpe?g|webp|gif|avif|bmp|svg)$/i.test(fileName);
+        })
+        .map(function(fileName) {
+          return "blog-media/" + fileName.replace(/^\.?\//, "");
+        });
+    });
+}
+
+function loadBlogGallery() {
+  if (!blogGallery) {
+    return;
+  }
+
+  fetch("blog-media/", { cache: "no-cache" })
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error("No directory listing");
+      }
+      return response.text();
+    })
+    .then(function(html) {
+      var images = parseImagesFromDirectoryHtml(html);
+      if (images.length > 0) {
+        renderBlogImages(images);
+        return;
+      }
+      throw new Error("No images in listing");
+    })
+    .catch(function() {
+      loadBlogFromManifest()
+        .then(function(images) {
+          renderBlogImages(images);
+        })
+        .catch(function() {
+          renderBlogImages([]);
+        });
+    });
+}
+
+loadBlogGallery();
 
 // ========== Contact Form — Client-side Validation + Mailto ==========
-document.getElementById("contactForm").addEventListener("submit", function(e) {
-  e.preventDefault();
+var contactForm = document.getElementById("contactForm");
 
-  var t = translations[currentLang];
-  var errorEl = document.getElementById("formError");
-  errorEl.textContent = "";
+if (contactForm) {
+  contactForm.addEventListener("submit", function(e) {
+    e.preventDefault();
 
-  var nameVal = document.getElementById("name").value.trim();
-  var emailVal = document.getElementById("email").value.trim();
-  var messageVal = document.getElementById("message").value.trim();
+    var t = translations[currentLang];
+    var errorEl = document.getElementById("formError");
+    errorEl.textContent = "";
 
-  if (!nameVal) {
-    errorEl.textContent = t.form_error_name;
-    return;
-  }
-  var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailVal || !emailPattern.test(emailVal)) {
-    errorEl.textContent = t.form_error_email;
-    return;
-  }
-  if (!messageVal) {
-    errorEl.textContent = t.form_error_message;
-    return;
-  }
+    var nameVal = document.getElementById("name").value.trim();
+    var emailVal = document.getElementById("email").value.trim();
+    var messageVal = document.getElementById("message").value.trim();
 
-  var subject = encodeURIComponent("Portfolio Contact from " + nameVal);
-  var body = encodeURIComponent("Name: " + nameVal + "\nEmail: " + emailVal + "\n\n" + messageVal);
-  window.location.href = "mailto:ayushmaankothari2006@gmail.com?subject=" + subject + "&body=" + body;
-});
+    if (!nameVal) {
+      errorEl.textContent = t.form_error_name;
+      return;
+    }
+    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailVal || !emailPattern.test(emailVal)) {
+      errorEl.textContent = t.form_error_email;
+      return;
+    }
+    if (!messageVal) {
+      errorEl.textContent = t.form_error_message;
+      return;
+    }
+
+    var subject = encodeURIComponent("Portfolio Contact from " + nameVal);
+    var body = encodeURIComponent("Name: " + nameVal + "\nEmail: " + emailVal + "\n\n" + messageVal);
+    window.location.href = "mailto:ayushmaankothari2006@gmail.com?subject=" + subject + "&body=" + body;
+  });
+}
