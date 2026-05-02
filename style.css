@@ -169,6 +169,31 @@ img {
   color: var(--accent);
 }
 
+/* Hero heading: single <h1> with forced line break.
+   Both lines use the same font-size, weight and line-height.
+   The name span is only used for color and to prevent word breaks. */
+.hero-heading {
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.02;
+  margin: 0 0 0.6rem 0;
+}
+
+.hero-heading span {
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.hero-heading > span[ data-i18n], .hero-heading > span[data-i18n] {
+  color: var(--text-secondary);
+}
+
+.hero-heading .hero-name {
+  color: var(--accent); /* color only */
+  white-space: nowrap; /* keep both words together */
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(24px);
@@ -403,7 +428,7 @@ textarea:focus-visible {
   display: grid;
   grid-template-columns: 1.18fr 0.82fr;
   gap: 1.5rem;
-  align-items: stretch;
+  align-items: start; /* allow right card to size to content */
 }
 
 .hero-content h1 {
@@ -467,6 +492,11 @@ textarea:focus-visible {
   border-radius: 18px;
   overflow: hidden;
   box-shadow: var(--shadow);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* stack terminal and metrics tightly */
+  align-self: start;
 }
 
 .terminal-head {
@@ -510,7 +540,7 @@ textarea:focus-visible {
 
 .terminal-code {
   margin: 0;
-  padding: 1rem;
+  padding: 1rem 1rem 0.6rem 1rem;
   font-family: "JetBrains Mono", monospace;
   font-size: 0.82rem;
   line-height: 1.65;
@@ -522,11 +552,21 @@ textarea:focus-visible {
 .terminal-metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: 0;
+  padding: 0.6rem 0.5rem 0.9rem 0.5rem;
+  background: rgba(13, 32, 68, 0.02); /* subtle contrast */
 }
 
 .terminal-metrics article {
-  padding: 0.95rem 0.75rem;
+  padding: 0.85rem 0.6rem;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
   border-right: 1px solid var(--border);
 }
 
@@ -535,16 +575,36 @@ textarea:focus-visible {
 }
 
 .terminal-metrics h3 {
-  font-size: 1.32rem;
+  font-size: 1.36rem;
   line-height: 1;
   color: var(--accent);
-  margin-bottom: 0.2rem;
+  margin: 0;
+  font-weight: 800;
 }
 
 .terminal-metrics p {
-  font-size: 0.73rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
-  font-family: "JetBrains Mono", monospace;
+  margin: 0;
+  font-family: inherit;
+}
+
+/* Divider lines between columns on larger screens */
+@media (max-width: 700px) {
+  .terminal-metrics {
+    grid-template-columns: 1fr;
+    background: transparent;
+    padding: 0.6rem 0 0.6rem 0;
+  }
+  .terminal-metrics article {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+    padding: 0.8rem 0.6rem;
+  }
+  .terminal-metrics article:last-child {
+    border-bottom: none;
+  }
 }
 
 .feature-strip {
