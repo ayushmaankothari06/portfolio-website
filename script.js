@@ -388,6 +388,12 @@ function renderBlogImages(imagePaths) {
     var card = document.createElement("figure");
     card.className = "blog-photo-card";
 
+    var imageLink = document.createElement("a");
+    imageLink.className = "blog-photo-link";
+    imageLink.href = path;
+    imageLink.target = "_blank";
+    imageLink.rel = "noopener noreferrer";
+
     var image = document.createElement("img");
     image.className = "blog-photo";
     image.loading = "lazy";
@@ -395,7 +401,8 @@ function renderBlogImages(imagePaths) {
     image.src = path;
     image.alt = "Blog photo";
 
-    card.appendChild(image);
+    imageLink.appendChild(image);
+    card.appendChild(imageLink);
     blogGallery.appendChild(card);
   });
 
