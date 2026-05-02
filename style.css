@@ -421,7 +421,24 @@ textarea:focus-visible {
 /* ========== HERO ========== */
 .hero-section {
   padding-top: 8.5rem;
-  padding-bottom: 4rem;
+  padding-bottom: 2.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 4.5rem;
+  background: linear-gradient(180deg, rgba(244, 248, 255, 0), var(--bg) 85%);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .hero-section::after {
+  background: linear-gradient(180deg, rgba(8, 15, 31, 0), var(--bg) 85%);
 }
 
 .hero-grid {
@@ -497,6 +514,7 @@ textarea:focus-visible {
   flex-direction: column;
   gap: 0; /* stack terminal and metrics tightly */
   align-self: start;
+  margin-bottom: 0;
 }
 
 .terminal-head {
